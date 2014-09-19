@@ -1,7 +1,7 @@
 ---
-title: "Reproducible Research: Peer Assessment z"
+title: "Reproducible Research: Peer Assessment 2"
 output: 
-  html_document:
+  pdf_document:
     keep_md: true
 ---
 
@@ -36,13 +36,7 @@ To start we load our libraries
 
 ```r
 require(ggplot2)
-```
 
-```
-## Loading required package: ggplot2
-```
-
-```r
 require(reshape2)
 ```
 
