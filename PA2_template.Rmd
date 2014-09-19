@@ -32,48 +32,52 @@ The data file and supporting documentation is available for download from the fo
 
 ### 1. Setting up the working environment, downloading and loading data
 To start we load our libraries
+
 ```{r setup}
-library(ggplot2)
-library(knitr)
-library(reshape2)
+require(ggplot2)
+
+require(reshape2)
 ```
 
 and set the working directory
 ```{r set_wd}
-setwd("~/Documents/Coursera/5.Reproducible_research/RepData_PeerAssessment2")
+setwd("~/Documents/Coursera/RepData_PeerAssessment2")
 ```
 
 Dowloading, saving and loading the data that will be used to conduct the analysis
 
 ```{r download_file}
 if(!file.exists("stormData.csv.bz2")) {
-        download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2",
+        download.file("http://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2",
         destfile = "stormData.csv.bz2")
 }
 ```
 
 Loading the file onto R
 ```{r load_file}
-data <- read.csv(bzfile("stormData.csv.bz2"), sep=",", header=T)
+data <- read.csv(bzfile("stormData.csv.bz2"), sep = ",", header = TRUE)
 ```
 
 ### 2. Analyzing the data structure
-```{r data_structure, results="hide", warning=FALSE}
-- head(data)
-- tail(data)
-- names(data)
-- str(data)
-- dim(data)
+```{r data_structure}
+#Here we are looking for the names of the different variables
+names(data)
+
+# Now we look at the general size of the data set
+dim(data)
+
+# And more specifically to the structure of the variables
+str(data)
 ```
 
-There are 985 event types which will be investigated to determine data quality and cleaning procedures.  
 
 ```{r}
+
 # Change parameter names to lowercase.
 colnames(data) <- tolower(colnames(data))
 ```
 
-Our analysis focuses on identifying which events caused most economic and health damages. Therefore, the dataset is filtered to keep only the columns containing relevant data i.e. "EVTYPE", "FATALITIES", "INJURIES", "PROPDMG", "PROPDMGEXP", "CROPDMG", "CROPDMGEXP".  
+Our analysis focuses on identifying which events caused most economic and health damages. Therefore, the dataset is filtered to keep only the columns containing relevant data i.e. "evtype", "fatalities", "injuries", "propdmg", "propdmgexp", "cropdmg", "cropdmgexp".  
     
 ```{r}
 # Subset the data set to include only the parameters of interest for the analysis.
@@ -93,9 +97,9 @@ data <- subset(x = data,
 
 ```{r}
 # We change all damage exponents to uppercase 
-
 data$propdmgexp <- toupper(data$propdmgexp)
 data$cropdmgexp <- toupper(data$cropdmgexp)
+
 ```
 
 We then apply a conversion that changes the letter to the relevant numeric value for the Property damages.
@@ -108,6 +112,16 @@ The actual amounts specified in the DMGEXP columns are:
 propDmg <-  c("\"\"" = 10^0,
                 "-" = 10^0, 
                 "+" = 10^0,
+                "0" = 10^0,
+                "1" = 10^1,
+                "2" = 10^2,
+                "3" = 10^3,
+                "4" = 10^4,
+                "5" = 10^5,
+                "6" = 10^6,
+                "7" = 10^7,
+                "8" = 10^8,
+                "9" = 10^9,  
                 "H" = 10^2,
                 "K" = 10^3,
                 "M" = 10^6,
@@ -122,9 +136,11 @@ Applying the conversion to the Crop damages as well.
 
 ```{r}
 cropDmg <-  c("\"\"" = 10^0,
-                 "K" = 10^3,
-                 "M" = 10^6,
-                 "B" = 10^9)
+              "?" = 10^0, 
+              "0" = 10^0,
+              "K" = 10^3,
+              "M" = 10^6,
+              "B" = 10^9)
 
 # Providing the correct formatting of data for the analysis
 data$cropdmgexp <- cropDmg[as.character(data$cropdmgexp)]
@@ -164,16 +180,16 @@ healthDataTopMelt <- melt(healthDataTop, id.vars="evtype")
 
 ```{r econ_agg}
 # Combining propdmg and propdmgexp parameters into a single parameter "propertyloss"
-data$propertyloss <- data$propdmg * data$propdmgexp
+data$proploss <- data$propdmg * data$propdmgexp
 
 # Combining cropdmg and cropdmgexp parameters into a single parameter "croploss"
 data$croploss <- data$cropdmg * data$cropdmgexp
 
 # Aggregating amount of proploss and croploss per evtype into economicData dataframe
-econData <- aggregate(cbind(propertyloss, croploss) ~ evtype, data=data, FUN=sum)
+econData <- aggregate(cbind(proploss, croploss) ~ evtype, data=data, FUN=sum)
 
 # Adding total loss column to economicData
-econData$tot <- econData$propertyloss + econData$croploss
+econData$tot <- econData$proploss + econData$croploss
 ```
 
 ```{r econ_clean_sort}
@@ -226,7 +242,7 @@ In this second chart we analyse the economic impact of these adverse weather.
 # Creating the chart for economic damages
 econChart <- ggplot(econDataTopMelt, aes(x = reorder(evtype, -value), y = value)) + 
         geom_bar(stat = "identity", aes(fill = variable)) + 
-        scale_y_sqrt("Damage [$]") + 
+        scale_y_sqrt("Damage ($)") + 
         xlab("Event Type") + 
         theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
         ggtitle("Economic Impact of Top 10 US Weather Events")
@@ -237,4 +253,4 @@ print(econChart)
 
 From the chart we can see that it is clear that tornadoes have the highest health impact in terms of both fatalities and injuries. 
 Tornadoes, as in the previous chart, are responsible for the majority of economic damage almost all of which is attributable to property losses.
-The chart also shows that the biggest contributor to crop loss in economic terms is hail which is responsible for about two million dollars in damages.
+The chart also shows that the biggest contributor to crop loss in economic terms is drought which is responsible for about three million dollars in damages.
