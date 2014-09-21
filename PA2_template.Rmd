@@ -41,7 +41,13 @@ require(reshape2)
 
 and set the working directory
 ```{r set_wd}
-setwd("~/Documents/Coursera/RepData_PeerAssessment2")
+pwd <- getwd() 
+if (!is.null(pwd)) { 
+                setwd(pwd) 
+        } else { 
+                print("Directory not found") 
+        }
+
 ```
 
 Dowloading, saving and loading the data that will be used to conduct the analysis
