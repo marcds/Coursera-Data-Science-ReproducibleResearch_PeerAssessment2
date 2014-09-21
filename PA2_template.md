@@ -342,5 +342,5 @@ print(econChart)
 ![plot of chunk unnamed-chunk-7](./PA2_template_files/figure-html/unnamed-chunk-7.png) 
 
 From the chart we can see that it is clear that tornadoes have the highest health impact in terms of both fatalities and injuries. 
-Tornadoes, as in the previous chart, are responsible for the majority of economic damage almost all of which is attributable to property losses.
+Floods are responsible for the majority of economic damage almost all of which is attributable to property losses.
 The chart also shows that the biggest contributor to crop loss in economic terms is drought which is responsible for about three million dollars in damages.
