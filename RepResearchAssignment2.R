@@ -1,6 +1,11 @@
-setwd("~Documents/Coursera/5.Reproducible_research/RepData_PeerAssessment2)
+# Set the working directory
+pwd <- getwd() 
+if (!is.null(pwd)) { 
+  setwd(pwd) 
+} else { 
+  print("Directory not found") 
+}
 
-```{r load_read_data}
 # Dowloading data if it's not already done
 if(!file.exists("stormData.csv.bz2")) { #use any file name
         download.file("https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2",
